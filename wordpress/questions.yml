@@ -1,0 +1,148 @@
+questions:
+- variable: wordpressUsername
+  default: "user"
+  description: "WordPress用户名"
+  type: string
+  required: true
+  label: WordPress用户名
+  group: "settings"
+- variable: wordpressPassword
+  default: ""
+  description: "WordPress密码"
+  type: password
+  label: WordPress密码
+  group: "settings"
+- variable: wordpressEmail
+  default: "user@example.com"
+  description: "Wordpress 管理员邮箱"
+  type: string
+  required: true
+  label: Wordpress 管理员邮箱
+  group: "settings"
+# 启动/关闭MariaDB 数据库
+- variable: mariadb.enabled
+  default: true
+  description: "部署MariaDB数据库"
+  type: boolean
+  required: true
+  label: 部署MariaDB数据库
+  show_subquestion_if: true
+  group: "settings"
+  subquestions:
+  - variable: mariadb.db.name
+    default: "wordpress"
+    description: "数据库表名称"
+    type: string
+    label: 数据库表名称
+  - variable: mariadb.db.user
+    default: "wordpress"
+    description: "数据库用户名"
+    type: string
+    label: 数据库用户名
+  - variable: mariadb.db.password
+    default: ""
+    description: "数据库密码"
+    type: password
+    label: 数据库密码
+# 持久化配置
+- variable: mariadb.master.persistence.enabled
+  default: false
+  description: "开启MariaDB持久化存储"
+  type: boolean
+  required: true
+  label: 开启MariaDB持久化存储
+  show_if: "mariadb.enabled=true"
+  show_subquestion_if: true
+  group: "storage"
+  subquestions:
+  - variable: mariadb.master.persistence.size
+    default: "8Gi"
+    description: "MariaDB存储容量大小"
+    type: string
+    label: MariaDB存储容量大小
+  - variable: mariadb.master.persistence.storageClass
+    default: ""
+    description: "MariaDB持久化存储类型"
+    type: storageclass
+    label: MariaDB持久化存储类型
+- variable: persistence.enabled
+  default: false
+  description: "开启Wordpress持久化存储"
+  type: boolean
+  required: true
+  label: 开启Wordpress持久化存储
+  show_subquestion_if: true
+  group: "storage"
+  subquestions:
+  - variable: persistence.size
+    default: "10Gi"
+    description: "WordPress存储容量大小"
+    type: string
+    label: WordPress存储容量大小
+  - variable: persistence.storageClass
+    default: ""
+    description: "WordPress持久化存储类型"
+    type: storageclass
+    label: WordPress持久化存储类型
+# 访问方式类型
+- variable: service.type
+  default: "NodePort"
+  description: "WordPress的访问方式"
+  required: true
+  label: WordPress的访问方式
+  type: enum
+  options:
+    - "ClusterIP"
+    - "NodePort"
+    - "LoadBalancer"
+  group: "service"
+  subquestions:
+  - variable: service.nodePorts.http
+    default: ""
+    description: "指定范围默认为：30000-32767"
+    type: int
+    min: 30000
+    max: 32767
+    show_if: "ingress.enabled=false&&serviceType=NodePort"
+    label: WordPress http 端口
+  - variable: service.nodePorts.https
+    default: ""
+    description: "指定范围默认为：30000-32767"
+    type: int
+    min: 30000
+    max: 32767
+    show_if: "ingress.enabled=false&&serviceType=NodePort"
+    label: WordPress https 端口
+  - variable: service.loadBalancerIP
+    default: ""
+    description: "选择对应的LoadBalancer服务"
+    type: loadbalancerIP
+    label: 选择对应的LoadBalancer服务
+    show_if: "service.type=LoadBalancer"
+- variable: mariadb.service.type
+  default: "ClusterIP"
+  description: "MariaDB的访问方式"
+  required: true
+  label: MariaDB的访问方式
+  type: enum
+  options:
+    - "ClusterIP"
+    - "NodePort"
+  group: "service"
+  subquestions:
+  - variable: mariadb.service.nodePort.master
+    default: ""
+    description: "指定范围默认为：30000-32767"
+    type: int
+    min: 30000
+    max: 32767
+    show_if: "mariadb.service.type=NodePort"
+    label: MariaDB http 端口
+  - variable: mariadb.service.nodePort.slave
+    default: ""
+    description: "指定范围默认为：30000-32767"
+    type: int
+    min: 30000
+    max: 32767
+    show_if: "mariadb.service.type=NodePort&&replication.enabled=true"
+    label: MariaDB https 端口
