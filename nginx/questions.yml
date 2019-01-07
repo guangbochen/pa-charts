@@ -1,0 +1,64 @@
+questions:
+- variable: replicaCount
+  default: 1
+  description: "应用实例个数"
+  label: 应用实例个数
+  type: int
+  min: 1
+  max: 10
+  group: "settings"
+# 访问方式设置
+- variable: service.type
+  default: "ClusterIP"
+  description: "服务访问方式"
+  type: enum
+  label: Nginx服务访问方式
+  group: "service"
+  required: true
+  options:
+    - "ClusterIP"
+    - "NodePort"
+    - "LoadBalancer"
+  subquestions:
+  - variable: service.NodePort
+    default: ""
+    description: "指定范围默认为：30000-32767"
+    type: int
+    label: Nginx外部访问端口
+    min: 30000
+    max: 32767
+    show_if: "service.type=NodePort"
+  - variable: service.loadBalancerIP
+    default: ""
+    description: "选择对应的LoadBalancer服务"
+    type: loadbalancerIP
+    label: 选择对应的LoadBalancer服务
+    show_if: "service.type=LoadBalancer"
+# 存储设置
+- variable: persistence.enabled
+  default: false
+  description: "开启持久哈存储"
+  type: boolean
+  required: true
+  label: 开启持久化存储
+  group: "storage"
+  subquestions:
+  - variable: persistence.size
+    default: "10Gi"
+    description: "存储容量大小"
+    type: string
+    label: 存储容量大小
+  - variable: persistence.storageClass
+    default: ""
+    description: "存储类型"
+    type: storageclass
+    label: 存储类型
+  - variable: persistence.accessMode
+    default: "ReadWriteOnce"
+    description: "存储磁盘类型"
+    type: enum
+    label: 存储磁盘类型
+    options:
+      - "ReadWriteOnce"
+      - "ReadOnlyMany"
+      - "ReadWriteMany"
